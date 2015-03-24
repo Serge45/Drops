@@ -42,13 +42,15 @@ public class WaterDrop implements ApplicationListener {
 
     @Override
     public void create() {
-        mRainrrops = new Array<>();
+        mRainrrops = new Array<Rectangle>();
         spawnRaindrop();
         mDropImage = new Texture(Gdx.files.internal("droplet.png"));
         mBucketImage = new Texture(Gdx.files.internal("bucket.png"));
 
         mDropSound = Gdx.audio.newSound(Gdx.files.internal("waterdrop.wav"));
         mRainMusic = Gdx.audio.newMusic(Gdx.files.internal("undertreeinrain.mp3"));
+        mRainMusic.setLooping(true);
+        mRainMusic.play();
 
         mCamera = new OrthographicCamera();
         mCamera.setToOrtho(false, 480, 800);
@@ -97,7 +99,13 @@ public class WaterDrop implements ApplicationListener {
             Rectangle raindrop = iter.next();
             raindrop.y -= 200 * Gdx.graphics.getDeltaTime();
 
-            if (raindrop.y + 64 < 0 || raindrop.overlaps(mBucket)) {
+            if (raindrop.y + 64 < 0) {
+                iter.remove();
+                continue;
+            }
+
+            if (raindrop.overlaps(mBucket)) {
+                mDropSound.play();
                 iter.remove();
             }
         }
