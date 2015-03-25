@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.Iterator;
+import java.util.Random;
 
 /**
  * Created by serge.lu on 2015/3/24.
@@ -32,9 +33,9 @@ public class GameScreen implements Screen {
     private int mScore;
     private String mScorePrefix = "Score: ";
     private float mWaterHeight;
-    private float[] mWaterSurface = new float[124];
-    private int[] mWaterX = new int[60];
-    private int[] mWaterY = new int[60];
+    private float[] mWaterSurface = new float[964];
+    private int[] mWaterX = new int[480];
+    private int[] mWaterY = new int[480];
     private float mTime;
 
 
@@ -73,13 +74,13 @@ public class GameScreen implements Screen {
 
         for (int i = 2; i < mWaterSurface.length; ++i) {
             if (i % 2 == 0) {
-                mWaterSurface[i] = 4 * i;
+                mWaterSurface[i] = i;
             }
         }
 
-        mWaterSurface[0] = 0;
+        mWaterSurface[0] = 479;
         mWaterSurface[1] = 0;
-        mWaterSurface[2] = 480;
+        mWaterSurface[2] = 0;
         mWaterSurface[3] = 0;
 
         for (int i = 2; i < mWaterX.length; ++i) {
@@ -107,7 +108,7 @@ public class GameScreen implements Screen {
         mTime += delta;
 
         for (int y : mWaterY) {
-            mWaterSurface[y] = mWaterHeight + 4 * (float)Math.sin((y + mTime) * Math.PI);
+            mWaterSurface[y] = mWaterHeight + 50 * MathUtils.random(0.9f, 1.1f) * (float)Math.sin(y + (mTime));
         }
 
         mGame.shapeRenderer().begin(ShapeRenderer.ShapeType.Line);
