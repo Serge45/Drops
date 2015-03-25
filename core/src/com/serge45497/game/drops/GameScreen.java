@@ -7,6 +7,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
@@ -28,6 +29,14 @@ public class GameScreen implements Screen {
     private Rectangle mBucket;
     private Array<Rectangle> mRainrrops;
     private long mLastDropTime;
+    private int mScore;
+    private String mScorePrefix = "Score: ";
+    private float mWaterHeight;
+    private float[] mWaterSurface = new float[124];
+    private int[] mWaterX = new int[60];
+    private int[] mWaterY = new int[60];
+    private float mTime;
+
 
     private void spawnRaindrop() {
         Rectangle raindrop = new Rectangle();
@@ -37,10 +46,13 @@ public class GameScreen implements Screen {
         raindrop.height = 64;
         mRainrrops.add(raindrop);
         mLastDropTime = TimeUtils.nanoTime();
+
     }
 
     public GameScreen(final WaterDrop game) {
         mGame = game;
+        mScore = 0;
+        mWaterHeight = 0.f;
         mRainrrops = new Array<Rectangle>();
         spawnRaindrop();
         mDropImage = new Texture(Gdx.files.internal("droplet.png"));
@@ -55,9 +67,28 @@ public class GameScreen implements Screen {
 
         mBucket = new Rectangle();
         mBucket.x = 480 / 2 - 64 / 2;
-        mBucket.y = 20;
+        mBucket.y = 40;
         mBucket.width = 64;
         mBucket.height = 64;
+
+        for (int i = 2; i < mWaterSurface.length; ++i) {
+            if (i % 2 == 0) {
+                mWaterSurface[i] = 4 * i;
+            }
+        }
+
+        mWaterSurface[0] = 0;
+        mWaterSurface[1] = 0;
+        mWaterSurface[2] = 480;
+        mWaterSurface[3] = 0;
+
+        for (int i = 2; i < mWaterX.length; ++i) {
+            mWaterX[i] = 2 * i;
+        }
+
+        for (int i = 2; i < mWaterY.length; ++i) {
+            mWaterY[i] = 2 * i + 1;
+        }
     }
 
     @Override
@@ -71,13 +102,31 @@ public class GameScreen implements Screen {
         Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
         mCamera.update();
         mGame.batch().setProjectionMatrix(mCamera.combined);
+        mGame.shapeRenderer().setProjectionMatrix(mCamera.combined);
+
+        mTime += delta;
+
+        for (int y : mWaterY) {
+            mWaterSurface[y] = mWaterHeight + 4 * (float)Math.sin((y + mTime) * Math.PI);
+        }
+
+        mGame.shapeRenderer().begin(ShapeRenderer.ShapeType.Line);
+        mGame.shapeRenderer().setColor(0, 0, 0.5f, 0.8f);
+        mGame.shapeRenderer().polygon(mWaterSurface);
+        //mGame.shapeRenderer().rect(0, 0, 480, mWaterHeight);
+        mGame.shapeRenderer().end();
+
+        //painting
         mGame.batch().begin();
         mGame.batch().draw(mBucketImage, mBucket.x, mBucket.y);
 
         for (Rectangle raindrop : mRainrrops) {
             mGame.batch().draw(mDropImage, raindrop.x, raindrop.y);
         }
+
+        mGame.font().draw(mGame.batch(), mScorePrefix + mScore, 0, 20);
         mGame.batch().end();
+        //end
 
         if (Gdx.input.isTouched()) {
             Vector3 touchPos = new Vector3();
@@ -98,12 +147,14 @@ public class GameScreen implements Screen {
 
             if (raindrop.y + 64 < 0) {
                 iter.remove();
+                mWaterHeight += 5.0f;
                 continue;
             }
 
             if (raindrop.overlaps(mBucket)) {
                 mDropSound.play();
                 iter.remove();
+                ++mScore;
             }
         }
     }

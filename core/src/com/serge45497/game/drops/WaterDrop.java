@@ -3,6 +3,7 @@ package com.serge45497.game.drops;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 /**
  * Created by serge.lu on 2015/3/23.
@@ -10,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class WaterDrop extends Game {
     private SpriteBatch mBatch;
     private BitmapFont mFont;
+    private ShapeRenderer mShape;
 
     public SpriteBatch batch() {
         return mBatch;
@@ -19,10 +21,15 @@ public class WaterDrop extends Game {
         return mFont;
     }
 
+    public ShapeRenderer shapeRenderer() {
+        return mShape;
+    }
+
     @Override
     public void create() {
         mBatch = new SpriteBatch();
         mFont = new BitmapFont();
+        mShape = new ShapeRenderer();
         setScreen(new MainMenuScreen(this));
     }
 
@@ -36,5 +43,6 @@ public class WaterDrop extends Game {
         super.dispose();
         mBatch.dispose();
         mFont.dispose();
+        mShape.dispose();
     }
 }
